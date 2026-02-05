@@ -1,0 +1,489 @@
+\documentclass[UTF8]{mcmthesis}
+\mcmsetup{CTeX = true,    % 使用 CTeX 套装时，设置为 true
+          tcn = {2}, problem = \textcolor{red}{A},
+          sheet = true, titleinsheet = true, keywordsinsheet = true,
+          titlepage = false, abstract = true}
+\usepackage{environ}
+\usepackage{etoolbox}
+% 中文字体显示包，运行英文模板时请注释掉以下四个包
+% \usepackage{xeCJK}  % 使用XeLaTeX编译时支持中文
+% \setCJKmainfont[AutoFakeBold=2.5]{SimSun}  % 设置主字体为宋体，但加粗时自动切换为黑体
+% \setCJKsansfont{SimHei}  % 设置中文无衬线字体为黑体
+% \setCJKmonofont{FangSong}  % 设置中文等宽字体为仿宋
+% %\usepackage{newtxtext}     % 
+\usepackage{palatino}
+
+
+\usepackage{tocloft}
+\setlength{\cftbeforesecskip}{6pt}
+\renewcommand{\contentsname}{\hspace*{\fill}\Large\bfseries Contents \hspace*{\fill}}
+
+\title{This is title}
+
+\date{\today}
+
+\begin{document}
+
+\begin{abstract}
+
+
+
+\begin{keywords}
+
+\end{keywords}
+
+\end{abstract}
+
+\maketitle
+
+
+\tableofcontents        
+\thispagestyle{empty}
+
+\newpage
+
+\section{Introduction}
+\subsection{Background}
+
+
+\subsection{Restatement of Problem}
+
+
+\subsection{Our work}
+
+\begin{figure}[htbp]
+   \centering
+   \includegraphics[width=\textwidth]{figure3}
+   \caption{Our work}
+\end{figure}
+
+
+
+\section{Assumption and Notatation}
+
+\subsection{模型假设}
+
+\textbf{假设一：}假设数据真实可靠。
+题目所给2005年各国家或地区男子径赛纪录数据真实、准确，同时能够客观反映各国家在该年度的大致竞技水平。
+
+\textbf{假设二：}假设项目成绩可比性。
+不同国家或地区的比赛环境、计时方式等差异对成绩的影响可以忽略，各项目成绩之间具有可比性。
+
+\textbf{假设三：}假设变量线性相关。
+各径赛项目之间的相关关系可用线性相关结构进行刻画，适合采用主成分分析与因子分析方法。
+
+\textbf{假设四：}假设样本代表性。
+所选取的54个国家或地区样本均具有一定代表性，并且能够反映大多数国际男子径赛项目的一般结构特征。
+
+\newpage
+
+\subsection{符号说明}
+\renewcommand{\arraystretch}{1.5}
+\begin{table}[h] 
+\centering  
+\caption{符号约定}  
+\label{tab7} 
+\begin{tabular}{c c} 
+\hline
+符号 & 含义 \\
+\hline
+$x_{i,j}$ & 第 $i$ 个国家在第 $j$ 个项目上的原始成绩  \\
+$Z_{i,j}$ & 第 $i$ 个国家在第 $j$ 个项目上标准化后的成绩 \\
+$n$ & 国家或地区数 \\
+$p$ & 径赛项目数 \\
+$\bar{x_j}$ & 第 $j$ 个项目的样本均值\\
+$s_j$ & 第 $j$ 个项目的样本标准差 \\
+$R$ & 标准化变量的相关系数矩阵 \\
+$\lambda_K $ & 第 $k$ 个特征值 \\
+$F_m$ & 第 $m$ 个公共因子\\
+\hline
+\end{tabular}
+\end{table}
+
+\section{模型的建立与求解}
+本节在前述分析与假设基础上，依次建立数据标准化模型、主成分分析模型和因子分析模型。
+\subsection{数据标准化模型}
+由于各径赛项目虽具有相同计量单位，但数值尺度差异较大，若直接进行分析将导致结果失真。
+因此，首先对原始数据进行标准化处理。
+
+采用Z-score标准化方法\cite{He2019}，其计算公式为：$Z_{ij}=\frac{x_{ij}-\bar{x_j}}{s_j} $
+
+其中$\bar{x_j}=\frac{1}{n}\sum_{i = 1}^{n}x_{ij}, s_j=\sqrt{\frac{1}{n-1}\sum_{i = 1}^{n}(x_{ij}-\bar{x_j})^2}$  
+
+经过标准化处理后，各变量均满足均值为0、方差为1，从而消除了量纲与数量级差异，为后续分析奠定基础。
+\subsection{主成分分析}
+
+主成分分析（PCA）是一种经典的线性降维算法。它通过正交变换，将一组可能存在相关性的高维变量转换为一组线性不相关的低维变量（即主成分）。该方法的核心目标是在最大化保留原始数据方差（信息量）的前提下，消除指标间的冗余信息，从而实现对复杂数据结构的简化与特征提取 。
+
+\subsubsection{主成分分析模型建立}
+
+\qquad 鉴于 8 个径赛项目之间存在显著的多重共线性（例如 100 米与 200 米成绩高度正相关），直接使用原始数据评价会导致信息重叠与权重偏差。为此，我们建立主成分分析（PCA）模型对数据进行降维处理。该模型旨在通过正交变换，将相关的原始指标转化为少数几个互不相关的综合变量（主成分），在最大限度保留原始数据变异信息（Variance）的同时，构建出客观反映国家综合竞技实力的评价体系。
+
+\textbf{相关系数矩阵的构建}
+
+设标准化后的变量向量为：
+\begin{equation}
+    Z=(Z_1,Z_2,...,Z_8)^T
+\end{equation}
+
+根据样本数据计算标准化变量之间的相关系数矩阵：
+\begin{equation}
+    R=(r_{ij})^{8\times 8}
+\end{equation}
+
+其中$r_{ij}=\frac{1}{n-1}\sum_{k = 1}^{n}Z_{ki}Z_{kj}$
+
+相关系数矩阵反映了各径赛项目之间的线性相关程度。
+
+\textbf{特征值分解}\cite{He2019}
+
+对相关系数矩阵 R进行特征值分解：
+\begin{equation}
+    \left\lvert R-\lambda I\right\rvert =0
+\end{equation}
+
+可得到8个特征值满足$\lambda _1\geq \lambda _2\geq ...\geq \lambda _8$。
+
+以及相应的单位特征向量分别为$ a_1,a_2,...,a_8$。
+
+其中，第 k个特征值所对应的特征向量决定第 k个主成分的构成方向。
+
+\textbf{主成分的构造}
+
+第 k个主成分定义为：
+\begin{equation}
+    Y_k=a_{k1}Z_1+a_{k2}Z_2+...+a_{k8}Z_8
+\end{equation}
+
+主成分具有以下性质：
+
+\qquad 1.	各主成分之间相互正交、互不相关；
+
+\qquad 2.	第一个主成分方差最大；
+
+\qquad 3.	后续主成分在前一主成分正交条件下依次最大化方差。
+
+\textbf{方差贡献率计算}
+
+第 k 个主成分的方差贡献率为：
+\begin{equation}
+    \eta _k=\frac{\lambda _k}{\sum_{k = 1}^{m}\eta _k} 
+\end{equation}
+
+当累计贡献率达到85\%～90\%以上时，可认为所选主成分已充分反映原始数据的信息。
+
+\textbf{主成分个数的确定}
+
+通过计算发现：
+
+\qquad 1.前两个特征值明显大于1；
+
+\qquad 2.前两个主成分的累计方差贡献率为91.57\%。
+
+因此，本文选取前两个主成分作为综合评价指标。
+
+\subsubsection{主成分得分模型}
+
+对于第 i个国家或地区，其在第 k个主成分上的得分为：
+\begin{equation}
+    Y_{ik}=a_{k1}Z_{i1}+a_{k2}Z_{i2}+...+a_{k8}Z_{i8}
+\end{equation}
+
+其中, $Y_{i1}$ 示综合竞技水平得分， $Y_{i2}$ 表示项目结构差异得分
+
+\subsubsection{模型求解与结果分析}
+
+对原始男子径赛成绩数据进行标准化处理后，基于相关系数矩阵进行主成分分析。\cite{Johnson2007}
+通过对特征值的计算结果可知，前两个主成分的特征值均大于 1，其累计方差贡献率大于 85\%，能够解释标准化样本总方差的大部分信息。
+
+根据 (1)-(5) 可以求出各个国家的第一主成分和第二主成分:
+
+\renewcommand{\arraystretch}{1.5}
+\begin{table}[h] 
+\centering  
+\caption{国家与其主成分得分}  
+\begin{tabular}{c c c} 
+\hline
+国家 & 第一主成分得分 & 第二主成分得分 \\
+\hline
+阿根廷 & -0.41 & 0.40 \\
+澳大利亚 & -0.25 & -0.56 \\
+奥地利 & -0.72 & 0.17 \\
+$\dots$ & $\dots$ & $\dots$ \\
+美国 & -3.85 & -1.59 \\
+\hline
+\end{tabular}
+\end{table}
+
+根据(6)，可以计算出主成分对于公差的贡献量如下：
+\begin{table}[h] 
+\centering  
+\caption{主成分对于公差的贡献量}  
+\begin{tabular}{c c} 
+\hline
+主成分 & 贡献量 \\
+\hline
+第一主成分 & 83.63\%\\
+第二主成分 & 7.94\%\\
+总体贡献 & 91.57\%\\
+\hline
+\end{tabular}
+\end{table}
+
+根据分析可知，第一主成分体现了这个国家在8个径赛项目上的综合表现，且数值越大，代表时间越长，总体成绩越差；数值越小，代表时间越短，总体成绩越好。
+第二主成分反应了这个国家长跑优势和短跑优势的分化趋势，其数值为正代表更擅长短跑，而负值代表更擅长长跑，且数值的绝对值越大代表能力越强。
+
+
+所以按照第一主成分为横坐标，第二主成分为纵坐标可以画出以下散点图：
+\begin{figure}[htbp]
+   \centering
+   \includegraphics[width=\textwidth]{figure1}
+   \caption{主成分分析结果}
+\end{figure}
+
+\newpage
+
+\subsection{因子分析}
+
+虽然主成分分析能够有效实现降维，但其主要目标在于解释方差结构，而不强调潜在能力结构。为进一步揭示径赛项目背后的内在能力因素，本文在标准化变量基础上引入因子分析模型。
+
+\subsubsection{因子分析数学模型}
+
+因子分析模型可表示为：
+\begin{equation}
+    X=AF+\varepsilon 
+\end{equation}
+
+其中：
+\begin{itemize}
+\item {\bf }X：标准化观测变量向量
+\item {\bf }$F=(F_1,F_2,…,F_m)^T$：公共因子
+\item {\bf }A：因子载荷矩阵
+\item {\bf }$\varepsilon $：特殊因子
+\end{itemize}
+
+公共因子用于解释多个变量之间的共同变化规律。
+
+\textbf{因子数的确定}
+
+根据特征值大于1原则及累计方差解释率\cite{Rencher2002}，提取两个公共因子即可解释大部分信息，因此设：$m=2$
+
+\textbf{因子旋转}
+
+为增强因子结构的可解释性，对初始因子载荷矩阵进行正交旋转（如最大方差旋转），使各变量在不同因子上的载荷更加集中，从而便于实际含义解释。
+
+\textbf{因子得分计算}
+采用回归法计算因子得分：
+\begin{equation}
+    F=BZ
+\end{equation}
+其中 B为因子得分系数矩阵。由此可得到各国家在不同公共因子上的得分。
+
+\subsubsection{模型求解与结果分析}
+
+\textbf{\qquad 基于第一主成分的国家排序分析}
+
+根据各国家或地区在第一主成分上的得分，对54个国家或地区按升序排序，可以得到以下表格：
+
+\renewcommand{\arraystretch}{1.5}
+\begin{table}[h] 
+\centering  
+\caption{按第一主成分的排序结果}  
+\begin{tabular}{c c c} 
+\hline
+排名 & 国家 & 第一主成分 \\
+\hline
+1 & 美国 & -3.86  \\
+2 & 英国 & -2.93  \\
+3 & 意大利 & -2.71  \\
+\dots & \dots\\
+53 & 萨摩亚 & 8.48 \\
+54 & 库克群岛 & 10.77 \\
+\hline
+\end{tabular}
+\end{table}
+
+排名较高的国家都是美国、英国、意大利这一类传统意义上的径赛强国。而排名垫底的是萨摩亚、库克群岛知名度很低的小国。
+
+综上所述，按照第一主成分的排序结果与我们对这些国家或地区的运动水平的看法基本一致。
+
+\textbf{因子分析结果及公共因子的含义}
+
+在对标准化变量进行因子分析后，根据特征值大小及累计方差贡献率，提取两个公共因子用于解释原始变量结构。
+
+经正交旋转后，各径赛项目在公共因子上的载荷结构更加清晰。其中，第一公共因子在100米、200米和400米等短跑项目上的载荷较高；第二公共因子在1500米、5000米、10000米及马拉松等中长跑项目上的载荷较为显著。
+
+结合各项目的运动特点，可以将两个公共因子分别解释为：
+
+\qquad 第一公共因子：\textbf{爆发力因子}。主要反映速度与爆发能力，代表在100米、200米和400米等短跑项目上的能力强弱；
+
+\qquad 第二公共因子：\textbf{耐力因子}。主要反映有氧耐力水平，代表在800米、1500米、5000米、10000米和马拉松等长跑项目上的能力强弱。
+
+\textbf{基于因子得分的项目优势分析}
+
+同样的，我们以爆发力因子为横坐标，耐力因子为纵坐标，可以画出以下散点图：
+\begin{figure}[htbp]
+   \centering
+   \includegraphics[width=\textwidth]{figure2}
+   \caption{因子分析结果}
+\end{figure}
+
+\newpage
+
+从图3中可以看出，爆发力因子得分高的国家，比如美国和毛里求斯，在短跑项目中具有很大的优势。
+耐力因子得分高的国家，比如肯尼亚和朝鲜，在中长跑项目中优势同样明显。
+
+\section{模型的分析与检验}
+
+\subsection{主成分分析结果的合理性分析}
+
+\textbf{方差解释能力分析\cite{Wang2020}}
+
+主成分分析的核心目的在于，通过使用较少的综合变量来解释大部分的原始变量。本文计算结果表明，前两个主成分的累计方差贡献率约为95\%，远高于一般多元统计分析中85\%的常用标准。
+
+这表明原始8个径赛项目存在较强的相关性，并且多数信息可以通过少数指标进行刻画。同时采用前两个主成分代替原始变量具有充分的统计依据。
+
+因此，从信息保留角度看，所建立的主成分模型具有较高的有效性。
+
+\textbf{主成分载荷结构检验}
+
+通过对主成分载荷矩阵的分析可以发现，第一主成分在8个径赛项目上的载荷均为同号，且数值较大。并且各项目对第一主成分均具有一致贡献方向。
+
+该特征表明第一主成分并未偏向某一特定距离项目，而是综合反映了各项目成绩的整体水平变化。
+
+这一结果与“综合竞技水平”这一解释高度一致，从结构上验证了第一主成分解释的合理性。
+
+\textbf{第二主成分结构特征分析}
+
+第二主成分在不同项目上呈现明显差异。短跑项目（100 m、200 m、400 m）载荷方向一致，而中长跑项目（5000 m、10000 m、马拉松）载荷方向与其相反。
+
+这种“正负分化”结构表明第二主成分主要刻画的是不同项目类型之间的相对优势关系，而非整体成绩水平。
+
+因此，第二主成分反映短跑与中长跑之间的结构差异具有明确的统计依据。
+
+\subsection{主成分排序结果的现实一致性检验}
+
+为了检验主成分分析结果是否具有现实意义，本文将各国家或地区按照第一主成分得分进行排序，并与人们对国际田径竞技水平的普遍认知进行比较。
+
+分析发现，第一主成分得分较高的国家通往往在多项径赛项目中成绩稳定，但是第一主成分得分较低的国家往往在多数项目上竞争力有限。
+
+该排序结果与实际国际田径竞争格局基本一致\cite{Everitt2011}，说明第一主成分能够作为评价国家男子径赛综合水平的有效指标。
+
+从实际解释角度看，该结果进一步验证了主成分分析模型的合理性。
+
+\subsection{因子分析结构合理性检验}
+\subsubsection{因子载荷结构分析}
+在对因子载荷矩阵进行正交旋转后，各变量在两个公共因子上的载荷结构就变得更加清晰了。因子一在100 m、200 m、400 m项目上载荷较高，而因子二在1500 m、5000 m、10000 m及马拉松项目上载荷显著。
+
+这种结构表现出明显的“项目聚类”特征，即速度型项目与耐力型项目自然分离。该结果符合人体运动生理学中对速度能力与耐力能力的基本划分规律。
+
+\subsubsection{公共因子的实际意义验证}
+从体育科学角度看，短跑项目主要依赖无氧代谢能力与爆发力，而中长跑项目则主要依赖有氧代谢能力与心肺耐力。
+
+因子分析所得到的两个公共因子恰好对应这两类能力，说明模型所提取的公共因子具有明确的物理和生理解释意义，而非纯粹的数学结果。
+
+因此，因子分析模型在实际解释层面具有较强合理性。
+
+\subsection{因子得分结果的结构检验}
+通过计算各国家或地区在两个公共因子上的得分，可以进一步分析其项目结构特征。
+
+分析结果表明吗，部分国家在短跑能力因子上得分较高，而在耐力因子上得分相对较低。然而另一些国家则呈现相反特征，在中长跑项目中优势明显但也有少数国家在两个因子上均表现较为均衡。
+
+这种分类结果与国际田径长期形成的项目格局基本一致，说明因子得分能够较为准确地反映国家在不同类型径赛项目上的优势结构。
+
+\subsection{模型稳定性与适用性分析}
+从整体分析结果来看，本文所建立的模型具有以下特点：主成分分析结果稳定，前两个主成分解释能力突出。因子结构清晰，公共因子具有明确实际含义。模型既能进行综合评价，又能进行结构分析。分析结果在统计意义和体育实际意义上均具有一致性。
+
+因此，该模型具有较好的稳定性和适用性。
+
+\section{模型的评价与优化}
+在完成模型建立、求解以及分析检验之后，有必要对本文所构建的数学模型进行综合评价，从而明确其优点、不足及改进方向。
+
+\subsection{模型的优点}
+
+1、模型建模思路清晰，整体结构完整，符合数学建模的一般流程；
+
+2、通过主成分分析与因子分析相结合的方法，实现了对多项径赛成绩的综合评价；
+
+3、模型结果能够较好反映男子径赛的整体竞技水平及项目结构特征，具有一定实际意义。
+
+
+\subsection{模型的不足}
+
+1、本文仅采用2005年单一年份的数据进行分析，未考虑竞技成绩随时间变化的趋势，难以反映长期发展规律;
+
+2、模型分析主要基于比赛成绩数据，未将人口规模、训练条件、经济水平等外部影响因素纳入研究范围，分析深度仍有限;
+
+3、主成分分析和因子分析属于统计描述方法，主要用于揭示变量之间的相关结构，难以对成绩差异的形成原因进行因果解释。
+
+
+\subsection{模型改进方向}
+
+1、可引入多年度比赛数据，构建动态综合评价模型，以分析不同国家或地区竞技水平的变化趋势;
+
+2、在现有模型基础上结合聚类分析方法，对国家或地区进行类型划分，从而更直观地识别其项目优势结构；
+
+3、进一步融合体育科学相关指标，如训练水平、生理特征或社会经济因素，以提升模型的解释能力和应用价值。
+
+\section{总结}
+
+综合主成分分析与因子分析的结果可以看出，男子径赛成绩差异主要体现在两个方面：一是整体竞技水平差异，二是项目结构差异。
+
+主成分分析能够有效实现多项目成绩的综合评价，而因子分析有助于揭示不同项目之间的潜在能力结构。两种方法相互补充，使得本文所建立的模型能够从整体水平与专项优势两个层面对男子径赛成绩进行系统分析。
+
+\newpage
+
+\begin{thebibliography}{99}
+
+\bibitem{He2019}
+He, X.,
+\textit{Multivariate Statistical Analysis},
+China Renmin University Press, Beijing, 2019.
+
+\bibitem{Wang2020}
+Wang, B. and Zhang, J.,
+\textit{Mathematical Modeling Methods and Applications},
+Higher Education Press, Beijing, 2020.
+
+\bibitem{Johnson2007}
+Johnson, R. A. and Wichern, D. W.,
+\textit{Applied Multivariate Statistical Analysis},
+Prentice Hall, New Jersey, 2007.
+
+\bibitem{Rencher2002}
+Rencher, A. C.,
+\textit{Methods of Multivariate Analysis},
+Wiley, New York, 2002.
+
+\bibitem{Everitt2011}
+Everitt, B. and Hothorn, T.,
+\textit{An Introduction to Applied Multivariate Analysis with R},
+Springer, 2011.
+
+\end{thebibliography}
+
+
+\newpage
+
+\begin{appendices}
+
+\section{主成分分析求解与可视化代码}
+
+\lstinputlisting[language=python]{./code/p1.py}
+
+\section{因子分析求解与可视化代码}
+\lstinputlisting[language=python]{./code/p2.py}
+
+\end{appendices}
+
+\newpage
+\newcounter{lastpage}
+\setcounter{lastpage}{\value{page}}
+\thispagestyle{empty}
+
+% 重置页码
+\clearpage
+\setcounter{page}{\value{lastpage}}
+
+
+\end{document}
